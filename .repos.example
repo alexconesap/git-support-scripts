@@ -1,0 +1,3 @@
+# URL | directory | group
+https://github.com/alexconesap/one_repo.git|the_local_folder|base
+https://github.com/alexconesap/package-social.git|social|extra

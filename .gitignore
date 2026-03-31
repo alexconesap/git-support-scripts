@@ -1,0 +1,36 @@
+# IDE
+# We can also put these files/folders into .git/info/exclude to be part of each developer choice
+/.idea
+/.vscode
+/nbproject
+/nbproject/private/
+
+# Vagrant files
+.vagrant
+
+# OS files
+.DS_Store
+
+### Laravel ###
+vendor/
+node_modules/
+npm-debug.log
+
+# Laravel 4 specific
+bootstrap/compiled.php
+app/storage/
+
+# Laravel 5 & Lumen specific
+public/storage
+public/hot
+storage/*.key
+.env.*.php
+.env.php
+.env
+ips-v4
+Homestead.yaml
+Homestead.json
+.phpunit.result.cache
+
+# Rocketeer PHP task runner and deployment package. https://github.com/rocketeers/rocketeer
+.rocketeer/
