@@ -38,7 +38,7 @@ chmod +x ./support/*sh
 Copy the default `.repos.example` file and edit it to define your own repositories.
 
 ```shell
-[ -f .repos ] || cp .repos.example .repos
+[ -f .repos ] || cp ./support/.repos.example .repos
 ```
 
 ## Git scripts
@@ -50,26 +50,32 @@ Clones all repositories listed in .repos.
 Useful for quickly setting up environments (development, testing, production, etc.).
 
 ```shell
-./support/git_clone.sh
+./support/git_clone.sh # Clones ALL repositories defined at the .repos file
+./support/git_clone.sh --tools # Clones the repos belonging to the 'base' group and to the 'tools' group
+./support/git_clone.sh --tools --extra # Clones the repos belonging to the 'base' group and to the 'tools' and 'extra' groups
 ```
 
-### Update all repositories
+### Update repositories
 
-Pulls updates for all repositories.
+Pulls updates for all, or group-based, repositories.
 
 Useful for keeping a system fully synchronized.
 
 ```shell
-./support/git_update.sh
+./support/git_update.sh # Updates ALL repositories defined at .repos
+./support/git_update.sh --tools # Updates the repos belonging to the 'base' group and to the 'tools' group
+./support/git_update.sh --tools --extra # Updates the repos belonging to the 'base' group and to the 'tools' and 'extra' groups
 ```
 
 ### Commit local changes
 
-Commits changes across all repositories at once.
+Commits, and optionally `--push` changes across all repositories at once.
 Useful when working on multiple repositories simultaneously.
 
 ```shell
 ./support/git_commit_all.sh
+./support/git_commit_all.sh "Updated URL"
+./support/git_commit_all.sh "Updated URL" --push
 ```
 
 ### Check repository status
