@@ -2,24 +2,52 @@
 
 > Maintained by Alex Conesa
 
-This repository contains utility scripts to manage multiple Git repositories at once.  
-It avoids having to clone, update, or commit each repository individually.
+This repository provides utility scripts to manage multiple Git repositories simultaneously. It eliminates the need to clone, update, or commit each repository individually.
 
-All repositories are defined in the `.repos` file.
+The primary use case is handling shared libraries across multiple projects. This is not a replacement for Git submodules, but a practical approach for managing multiple local repositories that are actively developed and reused across projects.
+
+All repositories are defined in a `.repos` file.
+
+## .repos file structure
+
+```text
+# URL | directory | group
+https://github.com/alexconesap/repo1.git|the_local_folder_for_repo1|base
+https://github.com/alexconesap/repo2.git|folder_repo2|tools
+```
+
+Each entry specifies:
+
+- Repository URL
+- Local directory name
+- Group label (used for filtering or grouping)
+
+Check the `git_update.sh` script below for more details.
+
+A [sample file](.repos.example) is provided.
+
+## Setup
+
+Clone this repository into the root directory containing your libraries (e.g., support) and make the scripts executable:
+
+```shell
+git clone https://github.com/alexconesap/git-support-scripts support
+chmod +x ./support/*sh
+```
+
+Copy the default `.repos.example` file and edit it to define your own repositories.
+
+```shell
+[ -f .repos ] || cp .repos.example .repos
+```
 
 ## Git scripts
 
-First of all clone this repository at the root of your libraries folder. Then make all scripts executable.
-
-```shell
-chmod +x ./support/*
-```
-
 ### Clone all repositories
 
-Clones all repositories listed in `.repos` into the local environment.
+Clones all repositories listed in .repos.
 
-Used on deployment machines (development, test, pre-production, production) to set up all required project dependencies.
+Useful for quickly setting up environments (development, testing, production, etc.).
 
 ```shell
 ./support/git_clone.sh
@@ -27,7 +55,9 @@ Used on deployment machines (development, test, pre-production, production) to s
 
 ### Update all repositories
 
-Once in a development computer or server, it just pulls all remote repositories changes all at once.
+Pulls updates for all repositories.
+
+Useful for keeping a system fully synchronized.
 
 ```shell
 ./support/git_update.sh
@@ -44,17 +74,17 @@ Useful when working on multiple repositories simultaneously.
 
 ### Check repository status
 
-Shows the status of all repositories, allowing you to identify which ones have pending changes.
+Displays the status of all repositories to identify pending changes.
 
 ```shell
 ./support/git_status.sh
 ```
 
-## C/C++ scripts
+## C/C++ repositories maintenance
 
-### Format files
+### Format Source Files
 
-Formats all C/C++ source files in the specified directories using `clang-format` and the project's `.clang-format` configuration.
+Formats C/C++ files using `clang-format` and the project’s `.clang-format` configuration.
 
 ```shell
 ./support/format_c_files.sh lib lib_display
@@ -62,7 +92,7 @@ Formats all C/C++ source files in the specified directories using `clang-format`
 
 ## Optional alias
 
-For faster access, as an example:
+Example shortcut:
 
 ```shell
 alias gss='./support/git_status.sh'
