@@ -116,6 +116,25 @@ Options:
 - `--clean`: removes each repo's `tests/build` directory and invokes `1_build.sh` before `2_run.sh`.
 - Any non-flag argument is treated as a folder name filter. Unknown flags (starting with `-`) are rejected.
 
+### Bump a library version and publish a tag
+
+Bumps a library to a new version, commits the change, creates an annotated tag `v<version>`, and pushes both to `origin`.
+
+```shell
+./support/set_tag_version.sh lib_motor 2.0.3
+./support/set_tag_version.sh lib_display 1.1.0
+```
+
+Actions performed:
+
+1. Updates the `version=` line in `<lib>/library.properties`
+2. Writes the version into `<lib>/.version`
+3. Commits with message `chore: bump version to <version>`
+4. Creates annotated tag `v<version>`
+5. Pushes the current branch and the new tag to `origin`
+
+The commit is authored by the git user configured on the host (`git config user.name` / `user.email`) — the script never overrides it. The script refuses to run if the tag already exists locally or remotely, or if the target library has unrelated uncommitted changes.
+
 ## Optional alias
 
 Example shortcut:
@@ -123,3 +142,11 @@ Example shortcut:
 ```shell
 alias gss='./support/git_status.sh'
 ```
+
+## Acknowledgements
+
+Thanks to Claude and ChatGPT for helping on generating this documentation.
+
+## License
+
+MIT License — see [LICENSE](license.txt) file.
