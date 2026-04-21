@@ -96,6 +96,22 @@ Formats C/C++ files using `clang-format` and the project’s `.clang-format` con
 ./support/format_c_files.sh lib lib_display
 ```
 
+### Run tests
+
+Runs the test suite of every sibling repository that contains a `tests/` directory with a `2_run.sh` script.
+
+```shell
+./support/run_tests.sh                       # Run tests for ALL repositories
+./support/run_tests.sh lib lib_display       # Run tests only for the listed folders
+./support/run_tests.sh --clean               # Wipe tests/build and rebuild (1_build.sh) before running
+./support/run_tests.sh --clean lib_hal       # Clean build + run, limited to lib_hal
+```
+
+Options:
+
+- `--clean`: removes each repo's `tests/build` directory and invokes `1_build.sh` before `2_run.sh`.
+- Any non-flag argument is treated as a folder name filter. Unknown flags (starting with `-`) are rejected.
+
 ## Optional alias
 
 Example shortcut:

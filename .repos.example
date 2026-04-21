@@ -1,10 +1,15 @@
 # URL | destination directory | group
 https://github.com/alexconesap/ungula-lib.git|lib|base
-https://github.com/alexconesap/ungula-lib-audit.git|lib_audit|base
 https://github.com/alexconesap/ungula-lib-display.git|lib_display|ui
+https://github.com/alexconesap/emblogx.git|lib_emblogx|base
 https://github.com/alexconesap/ungula-lib-event-brokers.git|lib_event_brokers|base
 https://github.com/alexconesap/ungula-lib-i18n.git|lib_i18n|base
+https://github.com/alexconesap/ungula-lib-hal.git|lib_hal|base
+https://github.com/alexconesap/ungula-embedded-json.git|lib_json|base
+https://github.com/alexconesap/ungula-lib-loadcell.git|lib_loadcell|motors
 https://github.com/alexconesap/ungula-lib-motor.git|lib_motor|motors
 https://github.com/alexconesap/ungula-lib-net.git|lib_net|base
 https://github.com/alexconesap/ungula-lib-ota.git|lib_ota|base
+https://github.com/alexconesap/ungula-lib-sd.git|lib_sd|base
 https://github.com/alexconesap/ungula-lib-thermal.git|lib_thermal|base
+https://github.com/alexconesap/git-support-scripts.git|support|base
