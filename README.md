@@ -90,11 +90,15 @@ Displays the status of all repositories to identify pending changes.
 
 ### Format Source Files
 
-Formats C/C++ files using `clang-format` and the project’s `.clang-format` configuration.
+Formats C/C++ files using `clang-format` and each library's own `.clang-format` configuration.
 
 ```shell
-./support/format_c_files.sh lib lib_display
+./support/format_c_files.sh                         # List libraries with a .clang-format and ask before formatting all
+./support/format_c_files.sh lib lib_display         # Format only the given directories
+./support/format_c_files.sh src/ tests/test_x.cpp   # Mix of directories and individual files
 ```
+
+When run with no arguments, the script discovers every sibling folder that contains a `.clang-format` file (skipping `tests/vendor/`), prints the list, and asks `Do you want to process all of them? [y/N]`. Anything other than `y`/`yes` aborts.
 
 ### Run tests
 
