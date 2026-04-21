@@ -25,7 +25,8 @@ if (($# == 0)); then
         candidates+=("$dir")
     done < <(
         find "$root_dir" -mindepth 2 -maxdepth 2 -type f -name '.clang-format' \
-            -not -path '*/tests/vendor/*' -print |
+            -not -path '*/tests/vendor/*' \
+            -not -path '*/libraries/*' -print |
             sed "s|/\.clang-format$||" |
             sed "s|^$root_dir/||" |
             sort
@@ -73,6 +74,8 @@ for path in "$@"; do
         done < <(
             find "$path" \
                 \( \
+                    -type l -o \
+                    -type d -name 'libraries' -o \
                     -type d -path '*/tests/vendor' -o \
                     -type d -path '*/tests/build' \
                 \) -prune -o \
