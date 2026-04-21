@@ -54,7 +54,7 @@ fi
 
 is_cpp_file() {
     case "$1" in
-        *.c|*.cpp|*.h|*.hpp) return 0 ;;
+        *.ino|*.c|*.cpp|*.h|*.hpp) return 0 ;;
         *) return 1 ;;
     esac
 }
@@ -78,7 +78,8 @@ for path in "$@"; do
                 \) -prune -o \
                 -type f \( \
                     -name '*.c' -o -name '*.cpp' -o \
-                    -name '*.h' -o -name '*.hpp' \
+                    -name '*.h' -o -name '*.hpp' -o \
+                    -name '*.ino' \
                 \) -print0
         )
 
