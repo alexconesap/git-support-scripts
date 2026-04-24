@@ -41,6 +41,7 @@ esac
 executed=0
 skipped=0
 failed=0
+total_tests=0
 failed_list=""
 
 for repo_path in "$updates_dir"/*; do
@@ -63,13 +64,21 @@ for repo_path in "$updates_dir"/*; do
     printf "• %s\n" "$repo_name"
     print_line
 
-    if [ ! -d "$tests_dir" ] || [ ! -f "$run_script" ]; then 
-        echo " - No runnable tests" skipped=$((skipped+1)) 
-        echo "" 
+    if [ ! -d "$tests_dir" ] || [ ! -f "$run_script" ]; then
+        echo " - No runnable tests" skipped=$((skipped+1))
+        echo ""
         continue
     fi
 
-    if ! (
+    # Capture the run output so we can both stream it to the user (via tee)
+    # and parse the ctest summary line afterwards. The exit code of the
+    # subshell is written to a temp file via a trap; relying on the pipe's
+    # exit status would only give us tee's status.
+    out_file=$(mktemp)
+    exit_file=$(mktemp)
+
+    (
+        trap 'echo $? > "'"$exit_file"'"' EXIT
         cd "$tests_dir"
         if [ "$clean" -eq 1 ]; then
             echo "${GREEN}- Cleaning build artifacts${NC}"
@@ -79,21 +88,39 @@ for repo_path in "$updates_dir"/*; do
         fi
         echo "${GREEN}- Running tests${NC}"
         ./2_run.sh
-    ); then
+    ) 2>&1 | tee "$out_file"
+
+    sub_exit=$(cat "$exit_file" 2>/dev/null || echo 1)
+    [ -z "$sub_exit" ] && sub_exit=1
+    rm -f "$exit_file"
+
+    if [ "$sub_exit" -ne 0 ]; then
         echo "  ✖ Test execution failed"
         failed=$((failed+1))
         failed_list="$failed_list\n- $repo_name"
+        rm -f "$out_file"
         echo ""
         continue
     fi
 
-    echo "  ✔ Tests executed"
+    # Sum every "out of N" appearing in the captured output. Each ctest
+    # invocation emits exactly one such line; libraries with multiple
+    # ctest passes (rare, but supported) contribute multiple matches.
+    sublib_count=0
+    for n in $(grep -oE "out of [0-9]+" "$out_file" | awk '{print $NF}'); do
+        sublib_count=$((sublib_count + n))
+    done
+    total_tests=$((total_tests + sublib_count))
+    rm -f "$out_file"
+
+    echo "  ✔ Tests executed ($sublib_count tests)"
     executed=$((executed+1))
     echo ""
 done
 
 echo "Summary:"
 echo "  Executed: $executed"
+echo "  Total tests run: $total_tests"
 echo "  Skipped: $skipped"
 echo "  Failed: $failed"
 
