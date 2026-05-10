@@ -2,9 +2,9 @@
 
 set -eu
 
-echo ""
-echo "Committing changes for all repositories..."
-echo ""
+. "$(dirname -- "$0")/common.sh"
+
+msg_section "Committing changes for all repositories"
 
 current_dir=$(pwd)
 push_after_commit=false
@@ -24,7 +24,7 @@ case "$current_dir" in
 esac
 
 [ -d "$updates_dir" ] || {
-    echo "Error: base directory not found: $updates_dir" >&2
+    msg_error "Base directory not found: $updates_dir"
     exit 1
 }
 
@@ -47,33 +47,33 @@ for repo_path in "$updates_dir"/*; do
     fi
 
     if ! git -C "$repo_path" add -A; then
-        echo "✖ $repo_name"
-        echo "  Failed during git add"
+        msg_error "$repo_name"
+        msg_dim "  Failed during git add"
         failed=$((failed + 1))
         echo ""
         continue
     fi
 
     commit_output=$(git -C "$repo_path" commit -m "$commit_message" 2>&1) || {
-        echo "✖ $repo_name"
+        msg_error "$repo_name"
         echo "$commit_output" | sed 's/^/  /'
         failed=$((failed + 1))
         echo ""
         continue
     }
 
-    echo "✔ $repo_name"
+    msg_ok "$repo_name"
     echo "$commit_output" | sed 's/^/  /'
 
     if [ "$push_after_commit" = "true" ]; then
         push_output=$(git -C "$repo_path" push 2>&1) || {
-            echo "  ✖ Push failed"
+            msg_error "  Push failed"
             echo "$push_output" | sed 's/^/    /'
             failed=$((failed + 1))
             echo ""
             continue
         }
-        echo "  ✔ Pushed"
+        msg_ok "  Pushed"
     fi
 
     committed=$((committed + 1))
@@ -81,10 +81,14 @@ for repo_path in "$updates_dir"/*; do
 done
 
 if [ "$found_repo" = "false" ]; then
-    echo "No git repositories found."
+    msg_warn "No git repositories found."
     echo ""
 fi
 
-echo "Summary: $committed committed, $unchanged unchanged, $failed failed"
+msg_section "Summary"
+printf '  %s%d%s committed, %s%d%s unchanged, %s%d%s failed\n' \
+    "$_c_green" "$committed" "$_c_reset" \
+    "$_c_gray" "$unchanged" "$_c_reset" \
+    "$_c_red" "$failed" "$_c_reset"
 echo ""
-echo "Done!"
+msg_ok "Done!"

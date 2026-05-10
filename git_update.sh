@@ -3,9 +3,9 @@
 
 set -eu
 
-echo ""
-echo "Updating repositories"
-echo ""
+. "$(dirname -- "$0")/common.sh"
+
+msg_section "Updating repositories"
 
 current_dir=$(pwd)
 
@@ -29,10 +29,10 @@ for repo_path in "$updates_dir"/*; do
     # Check if repo has changes before pulling (optional but useful)
     status=$(git -C "$repo_path" status --porcelain)
 
-    printf "• %s\n" "$repo_name"
+    msg_bullet "$repo_name"
 
     pull_output=$(git -C "$repo_path" pull 2>&1) || {
-        echo "  ✖ Pull failed"
+        msg_error "  Pull failed"
         echo "  $pull_output"
         failed=$((failed+1))
         echo ""
@@ -42,11 +42,11 @@ for repo_path in "$updates_dir"/*; do
     # Detect common cases
     case "$pull_output" in
         *"Already up to date."*)
-            echo "  ✔ Already up to date"
+            msg_dim "  Already up to date"
             skipped=$((skipped+1))
             ;;
         *)
-            echo "  ✔ Updated"
+            msg_ok "  Updated"
             updated=$((updated+1))
             ;;
     esac
@@ -54,9 +54,9 @@ for repo_path in "$updates_dir"/*; do
     echo ""
 done
 
-echo "Summary:"
-echo "  Updated: $updated"
-echo "  Unchanged: $skipped"
-echo "  Failed: $failed"
+msg_section "Summary"
+printf '  Updated:   %s%d%s\n' "$_c_green" "$updated" "$_c_reset"
+printf '  Unchanged: %s%d%s\n' "$_c_gray"  "$skipped" "$_c_reset"
+printf '  Failed:    %s%d%s\n' "$_c_red"   "$failed"  "$_c_reset"
 echo ""
-echo "Done!"
+msg_ok "Done!"

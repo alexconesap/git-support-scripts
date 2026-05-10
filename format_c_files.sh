@@ -9,8 +9,10 @@
 
 set -euo pipefail
 
+source "$(dirname -- "${BASH_SOURCE[0]}")/common.sh"
+
 if ! command -v clang-format >/dev/null 2>&1; then
-    echo "Error: clang-format is not installed." >&2
+    msg_error "clang-format is not installed."
     exit 1
 fi
 
@@ -33,21 +35,21 @@ if (($# == 0)); then
     )
 
     if ((${#candidates[@]} == 0)); then
-        echo "No directories with a .clang-format file were found under $root_dir." >&2
+        msg_error "No directories with a .clang-format file were found under $root_dir."
         exit 1
     fi
 
-    echo "Directories with a .clang-format file:"
+    msg_section "Directories with a .clang-format file"
     for dir in "${candidates[@]}"; do
-        printf '  - %s\n' "$dir"
+        msg_bullet "$dir"
     done
     echo ""
 
-    printf 'Do you want to process all of them? [y/N] '
+    msg_prompt "Do you want to process all of them? [y/N]"
     read -r answer
     case "$answer" in
         y|Y|yes|YES) ;;
-        *) echo "Aborted."; exit 0 ;;
+        *) msg_warn "Aborted."; exit 0 ;;
     esac
 
     set -- "${candidates[@]/#/$root_dir/}"
@@ -63,12 +65,12 @@ is_cpp_file() {
 format_file() {
     local file="$1"
     clang-format -i -style=file "$file"
-    printf '✔ Formatted: %s\n' "$file"
+    msg_ok "Formatted: $file"
 }
 
 for path in "$@"; do
     if [[ -d "$path" ]]; then
-        printf 'Processing directory: %s\n' "$path"
+        msg_section "Processing directory: $path"
         while IFS= read -r -d '' file; do
             format_file "$file"
         done < <(
@@ -88,15 +90,16 @@ for path in "$@"; do
 
     elif [[ -f "$path" ]]; then
         if is_cpp_file "$path"; then
-            printf 'Processing file: %s\n' "$path"
+            msg_info "Processing file: $path"
             format_file "$path"
         else
-            printf 'Warning: unsupported file type: %s\n' "$path" >&2
+            msg_warn "Unsupported file type: $path"
         fi
 
     else
-        printf 'Warning: path does not exist: %s\n' "$path" >&2
+        msg_warn "Path does not exist: $path"
     fi
 done
 
-echo "Formatting complete."
+echo ""
+msg_ok "Formatting complete."

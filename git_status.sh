@@ -5,6 +5,8 @@
 
 set -eu
 
+. "$(dirname -- "$0")/common.sh"
+
 current_dir=$(pwd)
 counter=0
 
@@ -17,14 +19,14 @@ for repo_path in "$current_dir"/*; do
     status=$(git -C "$repo_path" status --porcelain)
 
     if [ -n "$status" ]; then
-        echo "✔ '$repo_name' --- Has local changes"
+        msg_ok "'$repo_name' --- Has local changes"
         counter=$((counter + 1))
     fi
 done
 
 if [ "$counter" -eq 0 ]; then
-    echo "No projects have local changes."
+    msg_dim "No projects have local changes."
 else
     echo ""
-    echo "$counter project(s) have local changes."
+    msg_info "$counter project(s) have local changes."
 fi

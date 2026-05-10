@@ -31,9 +31,7 @@
 
 set -eu
 
-full_line() {
-    printf '%s\n' "--------------------------------------------------------------------------------"
-}
+. "$(dirname -- "$0")/common.sh"
 
 trim() {
     # POSIX-safe trim of leading/trailing whitespace
@@ -57,18 +55,16 @@ clone_packages_repo() {
     full_dir="${main_dir}/${repo_dir}"
 
     if [ -d "$full_dir" ]; then
-        printf '• %s already exists, skipping\n' "$repo_dir"
+        msg_dim "• $repo_dir already exists, skipping"
         return 0
     fi
 
-    printf '• Cloning %s\n' "$repo_dir"
+    msg_info "Cloning $repo_dir"
     git clone "$repo_url" "$full_dir"
 }
 
-full_line
-echo "Cloning package repositories"
-echo "  Usage: $0 [--group1] [--group2] ..."
-full_line
+msg_section "Cloning package repositories"
+msg_dim "  Usage: $0 [--group1] [--group2] ..."
 
 current_dir=$(pwd)
 
@@ -80,7 +76,7 @@ esac
 repos_file="${main_dir}/.repos"
 
 if [ ! -f "$repos_file" ]; then
-    printf 'Error: .repos file not found at %s\n' "$repos_file" >&2
+    msg_error ".repos file not found at $repos_file"
     exit 1
 fi
 
@@ -91,13 +87,13 @@ for arg in "$@"; do
         --*)
             group_name=${arg#--}
             if [ -z "$group_name" ]; then
-                printf 'Warning: ignoring empty group flag: %s\n' "$arg" >&2
+                msg_warn "Ignoring empty group flag: $arg"
                 continue
             fi
             selected_groups="${selected_groups} ${group_name}"
             ;;
         *)
-            printf 'Warning: ignoring unknown argument: %s\n' "$arg" >&2
+            msg_warn "Ignoring unknown argument: $arg"
             ;;
     esac
 done
@@ -105,7 +101,7 @@ done
 while IFS='|' read -r repo_url repo_dir repo_group extra_field; do
     # Ignore malformed lines with extra separators
     [ -n "${extra_field:-}" ] && {
-        echo "Warning: skipping invalid line in .repos (too many fields)" >&2
+        msg_warn "Skipping invalid line in .repos (too many fields)"
         continue
     }
 
@@ -120,7 +116,7 @@ while IFS='|' read -r repo_url repo_dir repo_group extra_field; do
     esac
 
     if [ -z "$repo_dir" ]; then
-        printf 'Warning: skipping invalid line, missing local directory for URL: %s\n' "$repo_url" >&2
+        msg_warn "Skipping invalid line, missing local directory for URL: $repo_url"
         continue
     fi
 
@@ -131,4 +127,4 @@ while IFS='|' read -r repo_url repo_dir repo_group extra_field; do
     fi
 done < "$repos_file"
 
-echo "Done!"
+msg_ok "Done!"

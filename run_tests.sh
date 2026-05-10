@@ -8,27 +8,20 @@
 
 set -eu
 
-RED='\033[0;31m'
-NC='\033[0m' # No Color
-GREEN='\033[0;32m'
-
-print_line() {
-    printf '%*s\n' "${COLUMNS:-$(tput cols)}" '' | tr ' ' -
-}
+. "$(dirname -- "$0")/common.sh"
 
 clean=0
 filter=""
 for arg in "$@"; do
     case "$arg" in
         --clean) clean=1 ;;
-        -*) echo "Unknown argument: $arg" >&2; exit 1 ;;
+        -*) msg_error "Unknown argument: $arg"; exit 1 ;;
         *) filter="$filter $arg" ;;
     esac
 done
 
-echo ""
-echo "Running tests"
-[ "$clean" -eq 1 ] && echo "Clean build enabled"
+msg_section "Running tests"
+[ "$clean" -eq 1 ] && msg_info "Clean build enabled"
 echo ""
 
 current_dir=$(pwd)
