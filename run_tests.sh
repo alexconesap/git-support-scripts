@@ -53,12 +53,13 @@ for repo_path in "$updates_dir"/*; do
     tests_dir="$repo_path/tests"
     run_script="$tests_dir/2_run.sh"
 
-    print_line
-    printf "• %s\n" "$repo_name"
-    print_line
+    msg_rule
+    msg_bullet "$repo_name"
+    msg_rule
 
     if [ ! -d "$tests_dir" ] || [ ! -f "$run_script" ]; then
-        echo " - No runnable tests" skipped=$((skipped+1))
+        msg_dim " - No runnable tests"
+        skipped=$((skipped+1))
         echo ""
         continue
     fi
@@ -74,12 +75,12 @@ for repo_path in "$updates_dir"/*; do
         trap 'echo $? > "'"$exit_file"'"' EXIT
         cd "$tests_dir"
         if [ "$clean" -eq 1 ]; then
-            echo "${GREEN}- Cleaning build artifacts${NC}"
+            printf '%s- Cleaning build artifacts%s\n' "$_c_green" "$_c_reset"
             rm -rf build
-            echo "${GREEN}- Building project${NC}"
+            printf '%s- Building project%s\n' "$_c_green" "$_c_reset"
             ./1_build.sh
         fi
-        echo "${GREEN}- Running tests${NC}"
+        printf '%s- Running tests%s\n' "$_c_green" "$_c_reset"
         ./2_run.sh
     ) 2>&1 | tee "$out_file"
 
@@ -88,7 +89,7 @@ for repo_path in "$updates_dir"/*; do
     rm -f "$exit_file"
 
     if [ "$sub_exit" -ne 0 ]; then
-        echo "  ✖ Test execution failed"
+        msg_error "  Test execution failed"
         failed=$((failed+1))
         failed_list="$failed_list\n- $repo_name"
         rm -f "$out_file"
@@ -106,22 +107,22 @@ for repo_path in "$updates_dir"/*; do
     total_tests=$((total_tests + sublib_count))
     rm -f "$out_file"
 
-    echo "  ✔ Tests executed ($sublib_count tests)"
+    msg_ok "  Tests executed ($sublib_count tests)"
     executed=$((executed+1))
     echo ""
 done
 
-echo "Summary:"
-echo "  Executed: $executed"
-echo "  Total tests run: $total_tests"
-echo "  Skipped: $skipped"
-echo "  Failed: $failed"
+msg_section "Summary"
+printf '  Executed:        %s%d%s\n' "$_c_green" "$executed"    "$_c_reset"
+printf '  Total tests run: %s%d%s\n' "$_c_cyan"  "$total_tests" "$_c_reset"
+printf '  Skipped:         %s%d%s\n' "$_c_gray"  "$skipped"     "$_c_reset"
+printf '  Failed:          %s%d%s\n' "$_c_red"   "$failed"      "$_c_reset"
 
 if [ "$failed" -gt 0 ]; then
     echo ""
-    printf "${RED}Failed tests:${NC}\n"
-    printf "${RED}%b${NC}\n" "$failed_list"
+    msg_error "Failed tests:"
+    printf '%s%b%s\n' "$_c_red" "$failed_list" "$_c_reset"
 fi
 
 echo ""
-echo "Done!"
+msg_ok "Done!"
