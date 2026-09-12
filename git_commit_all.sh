@@ -36,17 +36,24 @@ found_repo=false
 for repo_path in "$updates_dir"/*; do
     [ -d "$repo_path" ] || continue
     [ -L "$repo_path" ] && continue
-    [ -e "$repo_path/.git" ] || continue
+
+    if [ -e "$repo_path/.git" ]; then
+        git_dir="$repo_path"
+    elif [ -e "$repo_path/code/.git" ]; then
+        git_dir="$repo_path/code"
+    else
+        continue
+    fi
 
     found_repo=true
     repo_name=$(basename "$repo_path")
 
-    if [ -z "$(git -C "$repo_path" status --porcelain)" ]; then
+    if [ -z "$(git -C "$git_dir" status --porcelain)" ]; then
         unchanged=$((unchanged + 1))
         continue
     fi
 
-    if ! git -C "$repo_path" add -A; then
+    if ! git -C "$git_dir" add -A; then
         msg_error "$repo_name"
         msg_dim "  Failed during git add"
         failed=$((failed + 1))
@@ -54,7 +61,7 @@ for repo_path in "$updates_dir"/*; do
         continue
     fi
 
-    commit_output=$(git -C "$repo_path" commit -m "$commit_message" 2>&1) || {
+    commit_output=$(git -C "$git_dir" commit -m "$commit_message" 2>&1) || {
         msg_error "$repo_name"
         echo "$commit_output" | sed 's/^/  /'
         failed=$((failed + 1))
@@ -66,7 +73,7 @@ for repo_path in "$updates_dir"/*; do
     echo "$commit_output" | sed 's/^/  /'
 
     if [ "$push_after_commit" = "true" ]; then
-        push_output=$(git -C "$repo_path" push 2>&1) || {
+        push_output=$(git -C "$git_dir" push 2>&1) || {
             msg_error "  Push failed"
             echo "$push_output" | sed 's/^/    /'
             failed=$((failed + 1))

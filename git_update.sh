@@ -22,16 +22,23 @@ failed=0
 for repo_path in "$updates_dir"/*; do
     [ -d "$repo_path" ] || continue
     [ -L "$repo_path" ] && continue
-    [ -e "$repo_path/.git" ] || continue
+
+    if [ -e "$repo_path/.git" ]; then
+        git_dir="$repo_path"
+    elif [ -e "$repo_path/code/.git" ]; then
+        git_dir="$repo_path/code"
+    else
+        continue
+    fi
 
     repo_name=$(basename "$repo_path")
 
     # Check if repo has changes before pulling (optional but useful)
-    status=$(git -C "$repo_path" status --porcelain)
+    status=$(git -C "$git_dir" status --porcelain)
 
     msg_bullet "$repo_name"
 
-    pull_output=$(git -C "$repo_path" pull 2>&1) || {
+    pull_output=$(git -C "$git_dir" pull 2>&1) || {
         msg_error "  Pull failed"
         echo "  $pull_output"
         failed=$((failed+1))

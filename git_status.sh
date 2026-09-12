@@ -13,10 +13,17 @@ counter=0
 for repo_path in "$current_dir"/*; do
     [ -d "$repo_path" ] || continue
     [ -L "$repo_path" ] && continue
-    [ -e "$repo_path/.git" ] || continue
+
+    if [ -e "$repo_path/.git" ]; then
+        git_dir="$repo_path"
+    elif [ -e "$repo_path/code/.git" ]; then
+        git_dir="$repo_path/code"
+    else
+        continue
+    fi
 
     repo_name=$(basename "$repo_path")
-    status=$(git -C "$repo_path" status --porcelain)
+    status=$(git -C "$git_dir" status --porcelain)
 
     if [ -n "$status" ]; then
         msg_ok "'$repo_name' --- Has local changes"
